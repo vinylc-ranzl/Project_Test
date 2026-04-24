@@ -1,0 +1,24 @@
+{
+  "pluginList": [
+    "iansinnott/obsidian-claude-code-mcp"
+  ],
+  "pluginSubListFrozenVersion": [
+    {
+      "repo": "iansinnott/obsidian-claude-code-mcp",
+      "version": ""
+    }
+  ],
+  "themesList": [],
+  "updateAtStartup": true,
+  "updateThemesAtStartup": true,
+  "enableAfterInstall": true,
+  "loggingEnabled": false,
+  "loggingPath": "BRAT-log",
+  "loggingVerboseEnabled": false,
+  "debuggingMode": false,
+  "notificationsEnabled": true,
+  "globalTokenName": "",
+  "personalAccessToken": "",
+  "selectLatestPluginVersionByDefault": false,
+  "allowIncompatiblePlugins": false
+}

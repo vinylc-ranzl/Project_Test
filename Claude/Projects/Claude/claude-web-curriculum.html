@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude로 웹페이지 구축하기 · 3주 마스터 커리큘럼</title>
+  <meta name="description" content="기획부터 배포까지, Claude와 함께 웹페이지를 완성하는 21일 실전 커리큘럼">
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --navy: #0f172a;
+      --navy-light: #1e293b;
+      --accent: #6366f1;
+      --accent-soft: #818cf8;
+      --gold: #f59e0b;
+      --bg: #fafafa;
+      --surface: #ffffff;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --success: #10b981;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+    /* Navigation */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    nav .container { display: flex; justify-content: space-between; align-items: center; height: 64px; }
+    .logo { font-weight: 800; font-size: 17px; letter-spacing: -0.01em; }
+    .logo span { color: var(--accent); }
+    .nav-links { display: flex; gap: 28px; }
+    .nav-links a {
+      color: var(--text-muted); text-decoration: none;
+      font-size: 14px; font-weight: 500; transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--accent); }
+    @media (max-width: 640px) { .nav-links { display: none; } }
+
+    /* Hero */
+    .hero {
+      padding: 100px 0 80px;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 80% 80%, rgba(245, 158, 11, 0.05) 0%, transparent 40%);
+      text-align: center;
+    }
+    .badge {
+      display: inline-block; padding: 6px 14px;
+      background: rgba(99, 102, 241, 0.1); color: var(--accent);
+      border-radius: 999px; font-size: 13px; font-weight: 600;
+      margin-bottom: 24px;
+    }
+    .hero h1 {
+      font-size: clamp(36px, 6vw, 60px);
+      font-weight: 800; letter-spacing: -0.03em;
+      line-height: 1.15; margin-bottom: 24px;
+    }
+    .hero h1 .gradient {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--gold) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero p {
+      font-size: clamp(16px, 2vw, 19px); color: var(--text-muted);
+      max-width: 620px; margin: 0 auto 40px;
+    }
+    .cta-group { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 14px 28px; border-radius: 10px;
+      font-weight: 600; font-size: 15px;
+      text-decoration: none; transition: all 0.2s;
+      border: none; cursor: pointer;
+    }
+    .btn-primary {
+      background: var(--navy); color: white;
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(15, 23, 42, 0.15); }
+    .btn-secondary {
+      background: var(--surface); color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* Stats */
+    .stats {
+      padding: 60px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 32px; text-align: center;
+    }
+    @media (max-width: 640px) { .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 24px; } }
+    .stat-value {
+      font-size: 36px; font-weight: 800;
+      color: var(--navy); letter-spacing: -0.02em;
+    }
+    .stat-label {
+      font-size: 13px; color: var(--text-muted);
+      margin-top: 4px; font-weight: 500;
+    }
+
+    /* Section */
+    section { padding: 80px 0; }
+    .section-header { text-align: center; margin-bottom: 60px; }
+    .section-label {
+      display: inline-block; font-size: 13px; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: clamp(28px, 4vw, 40px); font-weight: 800;
+      letter-spacing: -0.02em; margin-bottom: 16px;
+    }
+    .section-desc {
+      font-size: 17px; color: var(--text-muted);
+      max-width: 600px; margin: 0 auto;
+    }
+
+    /* Weeks overview */
+    .weeks-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    @media (max-width: 900px) { .weeks-grid { grid-template-columns: 1fr; } }
+    .week-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px; padding: 32px;
+      transition: all 0.3s;
+      position: relative; overflow: hidden;
+    }
+    .week-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0;
+      height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent-soft));
+      transform: scaleX(0); transform-origin: left;
+      transition: transform 0.3s;
+    }
+    .week-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08); }
+    .week-card:hover::before { transform: scaleX(1); }
+    .week-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 40px; height: 40px; border-radius: 10px;
+      background: rgba(99, 102, 241, 0.1); color: var(--accent);
+      font-weight: 700; font-size: 14px; margin-bottom: 16px;
+    }
+    .week-card h3 {
+      font-size: 22px; font-weight: 700;
+      margin-bottom: 12px; letter-spacing: -0.01em;
+    }
+    .week-card p {
+      color: var(--text-muted); font-size: 15px;
+      margin-bottom: 20px;
+    }
+    .week-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .week-tag {
+      padding: 4px 10px; background: #f1f5f9;
+      border-radius: 6px; font-size: 12px;
+      color: var(--text-muted); font-weight: 500;
+    }
+
+    /* Schedule */
+    .schedule { background: var(--surface); }
+    .tabs {
+      display: flex; gap: 8px; justify-content: center;
+      margin-bottom: 40px; flex-wrap: wrap;
+    }
+    .tab {
+      padding: 10px 24px; border: 1px solid var(--border);
+      background: var(--bg); border-radius: 999px;
+      font-weight: 600; font-size: 14px; cursor: pointer;
+      transition: all 0.2s; color: var(--text-muted);
+    }
+    .tab.active {
+      background: var(--navy); color: white; border-color: var(--navy);
+    }
+    .tab:hover:not(.active) { border-color: var(--accent); color: var(--accent); }
+
+    .days { display: none; }
+    .days.active { display: block; }
+    .day-item {
+      display: grid; grid-template-columns: 80px 1fr 100px;
+      gap: 20px; padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+      align-items: start;
+    }
+    .day-item:last-child { border-bottom: none; }
+    @media (max-width: 640px) {
+      .day-item { grid-template-columns: 60px 1fr; }
+      .day-time { grid-column: 2; font-size: 12px; color: var(--text-muted); }
+    }
+    .day-num {
+      font-weight: 700; color: var(--accent);
+      font-size: 14px; letter-spacing: 0.05em;
+    }
+    .day-content h4 {
+      font-size: 16px; font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .day-content p {
+      font-size: 14px; color: var(--text-muted);
+      line-height: 1.6;
+    }
+    .day-time {
+      text-align: right; font-size: 13px;
+      color: var(--text-muted); font-weight: 500;
+    }
+    @media (max-width: 640px) { .day-time { text-align: left; } }
+
+    /* Goals */
+    .goals-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+    .goal-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px; padding: 24px;
+    }
+    .goal-check {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: rgba(16, 185, 129, 0.1); color: var(--success);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 14px; font-weight: 700;
+    }
+    .goal-card h4 {
+      font-size: 15px; font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .goal-card p { font-size: 13px; color: var(--text-muted); }
+
+    /* Examples */
+    .examples { background: var(--navy); color: white; }
+    .examples .section-title { color: white; }
+    .examples .section-desc { color: rgba(255,255,255,0.7); }
+    .examples .section-label { color: var(--accent-soft); }
+    .examples-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+    .example-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px; padding: 28px;
+      transition: all 0.2s;
+    }
+    .example-card:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: var(--accent-soft);
+    }
+    .example-icon {
+      font-size: 24px; margin-bottom: 12px;
+    }
+    .example-card h4 {
+      font-size: 16px; font-weight: 700; margin-bottom: 6px;
+    }
+    .example-card p {
+      font-size: 13px; color: rgba(255,255,255,0.6); line-height: 1.6;
+    }
+
+    /* Tips */
+    .tips-list {
+      max-width: 800px; margin: 0 auto;
+      display: flex; flex-direction: column; gap: 16px;
+    }
+    .tip {
+      display: flex; gap: 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--gold);
+      border-radius: 8px; padding: 20px 24px;
+    }
+    .tip-icon {
+      font-size: 20px; flex-shrink: 0;
+    }
+    .tip h4 {
+      font-size: 15px; font-weight: 700; margin-bottom: 4px;
+    }
+    .tip p {
+      font-size: 14px; color: var(--text-muted); line-height: 1.6;
+    }
+
+    /* CTA */
+    .cta {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+      color: white; text-align: center; padding: 100px 0;
+    }
+    .cta h2 {
+      font-size: clamp(28px, 4vw, 40px);
+      font-weight: 800; margin-bottom: 16px; letter-spacing: -0.02em;
+    }
+    .cta p {
+      font-size: 17px; color: rgba(255,255,255,0.7);
+      max-width: 540px; margin: 0 auto 32px;
+    }
+    .cta .btn-primary {
+      background: white; color: var(--navy);
+    }
+
+    /* Footer */
+    footer {
+      padding: 40px 0; text-align: center;
+      font-size: 13px; color: var(--text-muted);
+      border-top: 1px solid var(--border);
+    }
+
+    /* Fade in animation */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up {
+      animation: fadeUp 0.6s ease-out both;
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="container">
+      <div class="logo">Claude × <span>Web Build</span></div>
+      <div class="nav-links">
+        <a href="#overview">개요</a>
+        <a href="#schedule">주차별 일정</a>
+        <a href="#goals">완료 목표</a>
+        <a href="#examples">프로젝트 예시</a>
+      </div>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="container">
+      <div class="badge fade-up">21일 실전 커리큘럼</div>
+      <h1 class="fade-up">Claude와 함께<br><span class="gradient">웹페이지를 완성하는 3주</span></h1>
+      <p class="fade-up">기획부터 배포까지, 개발 경험이 없어도 따라 할 수 있는 실전 가이드.<br>매일 1~2시간, 21일 후 진짜 동작하는 웹사이트를 가지게 됩니다.</p>
+      <div class="cta-group fade-up">
+        <a href="#schedule" class="btn btn-primary">커리큘럼 시작하기 →</a>
+        <a href="#examples" class="btn btn-secondary">프로젝트 예시 보기</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="stats">
+    <div class="container">
+      <div class="stats-grid">
+        <div>
+          <div class="stat-value">21일</div>
+          <div class="stat-label">학습 기간</div>
+        </div>
+        <div>
+          <div class="stat-value">1~2h</div>
+          <div class="stat-label">일일 학습 시간</div>
+        </div>
+        <div>
+          <div class="stat-value">3</div>
+          <div class="stat-label">AI 코딩 도구</div>
+        </div>
+        <div>
+          <div class="stat-value">1개</div>
+          <div class="stat-label">배포된 웹사이트</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="overview">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-label">Overview</div>
+        <h2 class="section-title">3주, 3단계로 나눠 진행합니다</h2>
+        <p class="section-desc">기획 → 개발 → 배포의 순서로, 각 주차가 끝나면 명확한 산출물이 남습니다.</p>
+      </div>
+      <div class="weeks-grid">
+        <div class="week-card">
+          <div class="week-num">W1</div>
+          <h3>기획 및 설계</h3>
+          <p>Claude와 대화하며 요구사항, 정보구조, 카피, 디자인 컨셉을 탄탄하게 잡는 주간. 이 단계를 잘 해두면 개발 시간이 절반으로 줄어듭니다.</p>
+          <div class="week-tags">
+            <span class="week-tag">브리프</span>
+            <span class="week-tag">페르소나</span>
+            <span class="week-tag">와이어프레임</span>
+            <span class="week-tag">카피</span>
+          </div>
+        </div>
+        <div class="week-card">
+          <div class="week-num">W2</div>
+          <h3>개발 및 구현</h3>
+          <p>Lovable·v0·Cursor 중 도구 하나를 선택해 실제로 페이지를 만드는 주간. Claude는 디버깅·리뷰·개선 아이디어를 제공하는 파트너 역할을 합니다.</p>
+          <div class="week-tags">
+            <span class="week-tag">Lovable</span>
+            <span class="week-tag">반응형</span>
+            <span class="week-tag">컴포넌트</span>
+            <span class="week-tag">인터랙션</span>
+          </div>
+        </div>
+        <div class="week-card">
+          <div class="week-num">W3</div>
+          <h3>완성 및 배포</h3>
+          <p>성능·SEO·접근성까지 프로덕션 레벨로 끌어올리고 세상에 공개하는 주간. 도메인 연결, 분석 도구 설치, 유지보수 문서까지 완성합니다.</p>
+          <div class="week-tags">
+            <span class="week-tag">Lighthouse</span>
+            <span class="week-tag">SEO</span>
+            <span class="week-tag">배포</span>
+            <span class="week-tag">도메인</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="schedule" class="schedule">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-label">Schedule</div>
+        <h2 class="section-title">일자별 학습 계획</h2>
+        <p class="section-desc">매일 하나씩, 실습 과제와 함께 진행하세요.</p>
+      </div>
+
+      <div class="tabs">
+        <button class="tab active" data-week="1">Week 1 · 기획</button>
+        <button class="tab" data-week="2">Week 2 · 개발</button>
+        <button class="tab" data-week="3">Week 3 · 배포</button>
+      </div>
+
+      <div class="days active" id="week-1">
+        <div class="day-item"><div class="day-num">DAY 01</div><div class="day-content"><h4>프로젝트 목표 및 요구사항 정의</h4><p>Claude와 대화형으로 프로젝트 브리프 작성. 목적·타겟·핵심 액션·필수 섹션·톤앤매너를 하나씩 질문받으며 정리.</p></div><div class="day-time">1시간</div></div>
+        <div class="day-item"><div class="day-num">DAY 02</div><div class="day-content"><h4>타겟 사용자 페르소나 작성</h4><p>3개 페르소나(이름·배경·니즈·방문 이유·이탈 요인) 설계 후 페르소나별 핵심 메시지 도출.</p></div><div class="day-time">1시간</div></div>
+        <div class="day-item"><div class="day-num">DAY 03</div><div class="day-content"><h4>사이트맵 및 정보 구조(IA) 설계</h4><p>원페이지 vs 다중 페이지 선택, 사이트맵을 Mermaid 다이어그램으로 시각화.</p></div><div class="day-time">1시간</div></div>
+        <div class="day-item"><div class="day-num">DAY 04</div><div class="day-content"><h4>섹션별 와이어프레임 작성</h4><p>텍스트 기반 와이어프레임 설계 후 Claude에게 UX 개선점 3가지 피드백 받기.</p></div><div class="day-time">1시간 30분</div></div>
+        <div class="day-item"><div class="day-num">DAY 05</div><div class="day-content"><h4>디자인 컨셉 및 톤앤매너 결정</h4><p>레퍼런스 사이트 분석, 컬러 팔레트(HEX) 3세트와 폰트 조합 도출.</p></div><div class="day-time">1시간</div></div>
+        <div class="day-item"><div class="day-num">DAY 06</div><div class="day-content"><h4>섹션별 카피(문구) 초안 작성</h4><p>히어로·가치제안·CTA·FAQ를 감성적·논리적·유머러스 3버전으로 작성해 베스트 조합 선택.</p></div><div class="day-time">1시간 30분</div></div>
+        <div class="day-item"><div class="day-num">DAY 07</div><div class="day-content"><h4>1주차 산출물 통합 및 개발 요청서 작성</h4><p>모든 산출물을 AI 코딩 도구에 전달할 완벽한 개발 요청서로 정리.</p></div><div class="day-time">1시간</div></div>
+      </div>
+
+      <div class="days" id="week-2">
+        <div class="day-item"><div class="day-num">DAY 08</div><div class="day-content"><h4>개발 도구 선택 및 환경 세팅</h4><p>Lovable · v0.dev · Cursor 중 선택 후 1주차 요청서를 첫 프롬프트로 입력해 페이지 초안 생성.</p></div><div class="day-time">1시간</div></div>
+        <div class="day-item"><div class="day-num">DAY 09</div><div class="day-content"><h4>히어로 섹션 및 상단 구조 완성</h4><p>가장 중요한 첫 화면을 완벽하게. CTA 버튼 동작과 모바일 대응 포함.</p></div><div class="day-time">1시간 30분</div></div>
+        <div class="day-item"><div class="day-num">DAY 10</div><div class="day-content"><h4>주요 콘텐츠 섹션 구현</h4><p>특징·가치 제안·사회적 증거·CTA를 하나씩 완성. 에러 발생 시 Claude로 디버깅.</p></div><div class="day-time">2시간</div></div>
+        <div class="day-item"><div class="day-num">DAY 11</div><div class="day-content"><h4>반응형 디자인 점검</h4><p>데스크톱·태블릿·모바일 대응. 깨지는 부분은 스크린샷으로 Claude에게 수정 요청.</p></div><div class="day-time">1시간 30분</div></div>
+        <div class="day-item"><div class="day-num">DAY 12</div><div class="day-content"><h4>이미지·아이콘·자산 반영</h4><p>Unsplash, Lucide icons 등 적용 후 WebP 최적화까지.</p></div><div class="day-time">1시간 30분</div></div>
+        <div class="day-item"><div class="day-num">DAY 13</div><div class="day-content"><h4>인터랙션 및 미세 조정</h4><p>호버 효과, 스크롤 애니메이션, 폼 유효성 검사, 성공 메시지 추가.</p></div><div class="day-time">1시간 30분</div></div>
+        <div class="day-item"><div class="day-num">DAY 14</div><div class="day-content"><h4>2주차 QA 및 리뷰</h4><p>QA 체크리스트 20개로 점검. 링크·폼·반응형·이미지 로딩 확인.</p></div><div class="day-time">1시간</div></div>
+      </div>
+
+      <div class="days" id="week-3">
+        <div class="day-item"><div class="day-num">DAY 15</div><div class="day-content"><h4>크로스 브라우저 테스트</h4><p>Chrome·Safari·Firefox·Edge에서 확인. 호환성 이슈 체크리스트화.</p></div><div class="day-time">1시간</div></div>
+        <div class="day-item"><div class="day-num">DAY 16</div><div class="day-content"><h4>성능 최적화</h4><p>Lighthouse 측정 → Claude에게 임팩트 큰 개선사항 3가지 요청 → 구체적 수정 코드 적용.</p></div><div class="day-time">1시간 30분</div></div>
+        <div class="day-item"><div class="day-num">DAY 17</div><div class="day-content"><h4>SEO 기초 설정</h4><p>메타 태그, Open Graph, JSON-LD, sitemap.xml, robots.txt 전체 세트 작성.</p></div><div class="day-time">1시간 30분</div></div>
+        <div class="day-item"><div class="day-num">DAY 18</div><div class="day-content"><h4>접근성(Accessibility) 개선</h4><p>WCAG 2.1 AA 기준 검토. ARIA, 키보드 네비게이션, 색 대비, alt 텍스트 보완.</p></div><div class="day-time">1시간</div></div>
+        <div class="day-item"><div class="day-num">DAY 19</div><div class="day-content"><h4>배포</h4><p>Vercel 또는 Netlify 배포. Lovable 사용 시 Publish 버튼, 직접 개발 시 GitHub 연동.</p></div><div class="day-time">1시간</div></div>
+        <div class="day-item"><div class="day-num">DAY 20</div><div class="day-content"><h4>도메인 연결 및 분석 도구 설치</h4><p>커스텀 도메인 DNS 설정, GA4 또는 Plausible 이벤트 설정.</p></div><div class="day-time">1시간 30분</div></div>
+        <div class="day-item"><div class="day-num">DAY 21</div><div class="day-content"><h4>유지보수 계획 및 문서화</h4><p>README, 변경 이력, 자주 수정하는 부분 매뉴얼화. 3개월 후의 자신이 볼 수 있는 문서.</p></div><div class="day-time">1시간 30분</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="goals">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-label">Outcome</div>
+        <h2 class="section-title">21일 후 달성하게 될 것</h2>
+        <p class="section-desc">5가지 구체적 성과로 학습 완료를 확인합니다.</p>
+      </div>
+      <div class="goals-grid">
+        <div class="goal-card">
+          <div class="goal-check">✓</div>
+          <h4>배포된 웹페이지 1개</h4>
+          <p>실제 URL로 접근 가능한 커스텀 도메인 사이트</p>
+        </div>
+        <div class="goal-card">
+          <div class="goal-check">✓</div>
+          <h4>Lighthouse 90점 이상</h4>
+          <p>성능·접근성·SEO 모든 항목에서 고득점</p>
+        </div>
+        <div class="goal-card">
+          <div class="goal-check">✓</div>
+          <h4>프롬프트 세트 10개</h4>
+          <p>기획·카피·디자인·디버깅·QA 재사용 자산</p>
+        </div>
+        <div class="goal-card">
+          <div class="goal-check">✓</div>
+          <h4>AI 코딩 도구 숙련</h4>
+          <p>Lovable · v0 · Cursor 중 하나 이상 실전 수준</p>
+        </div>
+        <div class="goal-card">
+          <div class="goal-check">✓</div>
+          <h4>유지보수 문서</h4>
+          <p>향후 수정과 확장을 위한 운영 매뉴얼</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="examples" class="examples">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-label">Project Ideas</div>
+        <h2 class="section-title">어떤 프로젝트에 적용할까요</h2>
+        <p class="section-desc">이 커리큘럼은 다음과 같은 실전 프로젝트에 바로 적용됩니다.</p>
+      </div>
+      <div class="examples-grid">
+        <div class="example-card">
+          <div class="example-icon">🏢</div>
+          <h4>펀드 소개 랜딩페이지</h4>
+          <p>투자 철학, 포트폴리오, 팀, 연락처가 포함된 VC 브랜딩 사이트</p>
+        </div>
+        <div class="example-card">
+          <div class="example-icon">📊</div>
+          <h4>포트폴리오사 지원 템플릿</h4>
+          <p>투자사가 포트폴리오 기업에 제공하는 공통 랜딩 템플릿</p>
+        </div>
+        <div class="example-card">
+          <div class="example-icon">🎤</div>
+          <h4>이벤트/세미나 페이지</h4>
+          <p>IR Day, 데모데이 안내와 RSVP 폼이 포함된 행사 페이지</p>
+        </div>
+        <div class="example-card">
+          <div class="example-icon">👥</div>
+          <h4>채용 페이지</h4>
+          <p>간단한 팀 소개와 지원 폼이 있는 리쿠르팅 사이트</p>
+        </div>
+        <div class="example-card">
+          <div class="example-icon">✨</div>
+          <h4>개인 포트폴리오</h4>
+          <p>VC 개인 브랜딩용 이력과 투자 철학 페이지</p>
+        </div>
+        <div class="example-card">
+          <div class="example-icon">📝</div>
+          <h4>뉴스레터 구독 페이지</h4>
+          <p>인사이트 콘텐츠를 정기 공유하는 간단한 구독 랜딩</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <div class="section-header">
+        <div class="section-label">Before You Start</div>
+        <h2 class="section-title">시작 전 꼭 알아둘 4가지</h2>
+      </div>
+      <div class="tips-list">
+        <div class="tip">
+          <div class="tip-icon">⚡</div>
+          <div>
+            <h4>Week 1을 소홀히 하지 마세요</h4>
+            <p>바이브 코딩의 가장 흔한 실패 패턴이 "바로 만들기 시작"입니다. 기획이 부실하면 개발 시간이 3~5배 늘어납니다.</p>
+          </div>
+        </div>
+        <div class="tip">
+          <div class="tip-icon">🎯</div>
+          <div>
+            <h4>완벽주의를 경계하세요</h4>
+            <p>Week 2에서 100% 완벽한 디자인을 추구하면 진도가 안 나갑니다. 80%에서 넘어가고 Week 3에서 다듬는 리듬을 유지하세요.</p>
+          </div>
+        </div>
+        <div class="tip">
+          <div class="tip-icon">📚</div>
+          <div>
+            <h4>기본 용어는 익히세요</h4>
+            <p>HTML/CSS/컴포넌트/반응형 같은 용어를 이해해야 Claude에게 정확히 요청할 수 있습니다. 코드를 직접 짜지 않아도 됩니다.</p>
+          </div>
+        </div>
+        <div class="tip">
+          <div class="tip-icon">🔒</div>
+          <div>
+            <h4>보안은 반드시 체크하세요</h4>
+            <p>폼 스팸 방지(reCAPTCHA), API 키 노출 금지, Supabase 연결 시 RLS 설정을 Week 3에 꼭 Claude에게 검토 요청하세요.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta">
+    <div class="container">
+      <h2>오늘 Day 1을 시작해보세요</h2>
+      <p>21일 후, 여러분의 아이디어가 세상에 공개된 진짜 웹사이트가 됩니다. Claude와 함께라면 어렵지 않습니다.</p>
+      <a href="#schedule" class="btn btn-primary">Day 1 시작하기 →</a>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      Claude × Web Build Curriculum · 고우정_VC · Designed as a Week 1 reference
+    </div>
+  </footer>
+
+  <script>
+    // Tab switching
+    const tabs = document.querySelectorAll('.tab');
+    const daysContainers = document.querySelectorAll('.days');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const week = tab.dataset.week;
+        tabs.forEach(t => t.classList.remove('active'));
+        daysContainers.forEach(d => d.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('week-' + week).classList.add('active');
+      });
+    });
+
+    // Fade-in on scroll
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.animation = 'fadeUp 0.6s ease-out both';
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.week-card, .goal-card, .example-card, .tip').forEach(el => {
+      el.style.opacity = '0';
+      observer.observe(el);
+    });
+  </script>
+
+</body>
+</html>
